@@ -20,7 +20,11 @@ type RideRequestObj = {
     email: string;
   };
   pickupLocation: string;
+  pickupLatitude?: number;
+  pickupLongitude?: number;
   dropoffLocation: string;
+  dropoffLatitude?: number;
+  dropoffLongitude?: number;
   fare: number;
   notes: string;
   status: string;
@@ -38,7 +42,11 @@ type RidePayload = {
     email: string;
   } | null;
   pickupLocation: string;
+  pickupLatitude?: number;
+  pickupLongitude?: number;
   dropoffLocation: string;
+  dropoffLatitude?: number;
+  dropoffLongitude?: number;
   fare: number;
   status: string;
 };
@@ -264,7 +272,7 @@ export default function DriverDashboard() {
                 Status: {rideStatus || activeRide?.status || 'waiting'}
               </Typography>
             </Box>
-            {/* show all rides of the driver in a list */}
+            {/* show all rides of the driver */}
             <Box className={styles.rideList}>
               <Box>
                 {rides.length > 0 ? (
@@ -273,6 +281,11 @@ export default function DriverDashboard() {
                       <Typography variant="body2" sx={{ color: 'white' }}>
                         {ride.pickupLocation} to {ride.dropoffLocation}
                       </Typography>
+                      {/* <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                        
+                        {ride.pickupLatitude}, {ride.pickupLongitude} to {ride.dropoffLatitude}, {ride.dropoffLongitude}
+
+                      </Typography> */}
                       <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                         Status: {ride.status} · ₹{ride.fare}
                       </Typography>
