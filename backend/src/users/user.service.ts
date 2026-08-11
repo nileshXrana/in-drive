@@ -34,4 +34,13 @@ export class UserService {
 
     return this.userRepository.save(user);
   }
+
+  async updateRole(uuid: string, role: 'passenger' | 'driver'): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { uuid } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.role = role;
+    return this.userRepository.save(user);
+  }
 }

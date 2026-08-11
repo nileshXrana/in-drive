@@ -1,14 +1,12 @@
 import { Ride } from '../../rides/entities/ride.entity';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('users')
+@Entity('user')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
@@ -19,9 +17,12 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ default: 'passenger' })
+  role: 'passenger' | 'driver';
 
-  @Column({ nullable: true })
-  role: 'passenger' | 'driver' = 'passenger';
+  @OneToMany(() => Ride, (ride) => ride.rider)
+  ridesAsRider: Ride[];
 
-
+  @OneToMany(() => Ride, (ride) => ride.driver)
+  ridesAsDriver: Ride[];
 }

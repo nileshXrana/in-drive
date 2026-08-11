@@ -13,7 +13,13 @@ type SuggestionOption = {
     coordinates?: [number, number];
 };
 
-export default function FreeSolo() {
+interface FreeSoloProps {
+    label?: string;
+    placeholder?: string;
+    onSelect?: (value: SuggestionOption | null) => void;
+}
+
+export default function FreeSolo({ label = "Location", placeholder = "Search a place", onSelect }: FreeSoloProps) {
     const [inputValue, setInputValue] = useState('');
     const [value, setValue] = useState<SuggestionOption | null>(null);
     const [options, setOptions] = useState<SuggestionOption[]>([]);
@@ -87,27 +93,32 @@ export default function FreeSolo() {
                     if (typeof option === 'string') {
                         return option;
                     }
-
                     return option?.label ?? '';
                 }}
                 inputValue={inputValue}
                 value={value ?? undefined}
-                onInputChange={(_, newValue) => setInputValue(newValue)}
+                onInputChange={(_, newValue) => {
+                    setInputValue(newValue);
+                    if (!newValue) {
+                        if (onSelect) onSelect(null);
+                    }
+                }}
                 onChange={(_, newValue) => {
                     if (typeof newValue === 'string') {
                         setValue(null);
                         setInputValue(newValue);
+                        if (onSelect) onSelect(null);
                         return;
                     }
-
                     setValue(newValue);
                     setInputValue(newValue?.label ?? '');
+                    if (onSelect) onSelect(newValue);
                 }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label="Pickup location"
-                        placeholder="Search a place"
+                        label={label}
+                        placeholder={placeholder}
                         slotProps={{
                             ...params.slotProps,
                             input: {
