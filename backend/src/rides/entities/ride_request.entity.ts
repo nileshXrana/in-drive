@@ -12,9 +12,6 @@ export class RideRequest {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @ManyToOne(() => User, { eager: true })
-  rider: User;
-
   @Column()
   pickupLocation: string;
 
@@ -32,4 +29,8 @@ export class RideRequest {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @ManyToOne(() => User, { eager: true })
+  rider: User;
+
 }

@@ -29,7 +29,7 @@ export class RidesGateway {
     private readonly rideRequestRepository: Repository<RideRequest>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   @SubscribeMessage('join')
   async handleJoin(
@@ -52,9 +52,14 @@ export class RidesGateway {
       fare: number;
       notes: string;
     },
+    @ConnectedSocket() client: Socket,
+    callback?: (response: RideRequest | null) => void,
   ) {
     const rider = await this.userRepository.findOne({ where: { uuid: data.riderUuid } });
-    if (!rider) return;
+    if (!rider) {
+      callback?.(null);
+      return;
+    }
 
     const request = this.rideRequestRepository.create({
       rider,
@@ -80,6 +85,7 @@ export class RidesGateway {
       status: savedRequest.status,
     });
 
+    callback?.(savedRequest);
     return savedRequest;
   }
 

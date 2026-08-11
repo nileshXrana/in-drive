@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async signup(dto: CreateUserDto): Promise<User> {
     const existing = await this.userService.findOne(dto.email);
@@ -20,13 +20,13 @@ export class AuthService {
     return this.userService.createUser(dto);
   }
 
-  async login(dto: LoginDto): Promise<{ user: User; token: string }> {
-    const user = await this.userService.findOne(dto.email);
+  async login(userDto: LoginDto): Promise<{ user: User; token: string }> {
+    const user = await this.userService.findOne(userDto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isMatch = await bcrypt.compare(dto.password, user.password);
+    const isMatch = await bcrypt.compare(userDto.password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }

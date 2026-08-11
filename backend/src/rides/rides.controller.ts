@@ -2,10 +2,11 @@ import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/comm
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../users/entities/user.entity';
 import { RideService } from './rides.service';
+type ride_status = 'pending' | 'rated' | 'accepted' | 'started' | 'ended';
 
 @Controller('rides')
 export class RideController {
-  constructor(private readonly rideService: RideService) {}
+  constructor(private readonly rideService: RideService) { }
 
   @UseGuards(AuthGuard)
   @Get()
@@ -26,7 +27,7 @@ export class RideController {
 
   @UseGuards(AuthGuard)
   @Put(':uuid/status')
-  async updateStatus(@Param('uuid') uuid: string, @Body('status') status: string) {
+  async updateStatus(@Param('uuid') uuid: string, @Body('status') status: ride_status) {
     return this.rideService.updateStatus(uuid, status);
   }
 }
