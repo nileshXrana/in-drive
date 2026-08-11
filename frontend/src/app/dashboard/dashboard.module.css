@@ -8,7 +8,7 @@
 
 .header {
   height: 64px;
-  background-color: #1a18189c;
+  background-color: #313436da;
   padding: 0 2rem;
   display: flex;
   justify-content: space-between;
@@ -23,8 +23,9 @@
 }
 
 .leftPanel {
-  width: 450px;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  width: 650px;
+  background-color: #f5f1f171;
+  border-right: 2px solid rgba(12, 12, 12, 0.192);
   padding: 2rem;
   overflow-y: auto;
   display: flex;
@@ -33,9 +34,10 @@
 }
 
 .rightPanel {
-  flex: 1;
-  position: relative;
-  background-color: #0e0e0e;
+  width: 100%;
+  padding: 2rem;
+  color: black;
+
 }
 
 .mapContainer {

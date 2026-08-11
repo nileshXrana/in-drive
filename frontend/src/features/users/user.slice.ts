@@ -31,6 +31,8 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
+
       // signup
       .addCase(signupThunk.pending, (state) => {
         state.loading = true;
@@ -44,11 +46,15 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
+
       // logout
       .addCase(logoutThunk.fulfilled, (state) => {
         state.user = null;
         state.loading = false;
       })
+
+
       // getUser
       .addCase(getUserThunk.pending, (state) => {
         state.loading = true;

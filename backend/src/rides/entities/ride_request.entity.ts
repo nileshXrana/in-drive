@@ -15,8 +15,20 @@ export class RideRequest {
   @Column()
   pickupLocation: string;
 
+  @Column({ type: 'double precision', nullable: true })
+  pickupLatitude: number | null;
+
+  @Column({ type: 'double precision', nullable: true })
+  pickupLongitude: number | null;
+
   @Column()
   dropoffLocation: string;
+
+  @Column({ type: 'double precision', nullable: true })
+  dropoffLatitude: number | null;
+
+  @Column({ type: 'double precision', nullable: true })
+  dropoffLongitude: number | null;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   fare: number;

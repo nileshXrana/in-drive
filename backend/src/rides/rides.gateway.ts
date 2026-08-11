@@ -48,7 +48,11 @@ export class RidesGateway {
     data: {
       riderUuid: string;
       pickupLocation: string;
+      pickupLatitude?: number;
+      pickupLongitude?: number;
       dropoffLocation: string;
+      dropoffLatitude?: number;
+      dropoffLongitude?: number;
       fare: number;
       notes: string;
     },
@@ -64,7 +68,11 @@ export class RidesGateway {
     const request = this.rideRequestRepository.create({
       rider,
       pickupLocation: data.pickupLocation,
+      pickupLatitude: data.pickupLatitude ?? null,
+      pickupLongitude: data.pickupLongitude ?? null,
       dropoffLocation: data.dropoffLocation,
+      dropoffLatitude: data.dropoffLatitude ?? null,
+      dropoffLongitude: data.dropoffLongitude ?? null,
       fare: data.fare,
       notes: data.notes,
       status: 'pending',
@@ -79,7 +87,11 @@ export class RidesGateway {
         email: rider.email,
       },
       pickupLocation: savedRequest.pickupLocation,
+      pickupLatitude: savedRequest.pickupLatitude,
+      pickupLongitude: savedRequest.pickupLongitude,
       dropoffLocation: savedRequest.dropoffLocation,
+      dropoffLatitude: savedRequest.dropoffLatitude,
+      dropoffLongitude: savedRequest.dropoffLongitude,
       fare: savedRequest.fare,
       notes: savedRequest.notes,
       status: savedRequest.status,
@@ -156,7 +168,11 @@ export class RidesGateway {
       rider: request.rider,
       driver: driver,
       pickupLocation: request.pickupLocation,
+      pickupLatitude: request.pickupLatitude,
+      pickupLongitude: request.pickupLongitude,
       dropoffLocation: request.dropoffLocation,
+      dropoffLatitude: request.dropoffLatitude,
+      dropoffLongitude: request.dropoffLongitude,
       fare: data.price,
       status: 'accepted',
     });
@@ -212,7 +228,11 @@ export class RidesGateway {
       rider: request.rider,
       driver: driver,
       pickupLocation: request.pickupLocation,
+      pickupLatitude: request.pickupLatitude,
+      pickupLongitude: request.pickupLongitude,
       dropoffLocation: request.dropoffLocation,
+      dropoffLatitude: request.dropoffLatitude,
+      dropoffLongitude: request.dropoffLongitude,
       fare: data.price,
       status: 'accepted',
     });
@@ -259,6 +279,8 @@ export class RidesGateway {
     });
   }
 
+
+  // fake ride flow
   private runFakeRideFlow(rideUuid: string, riderUuid: string, driverUuid: string) {
     setTimeout(async () => {
       this.server.to(`user_${riderUuid}`).emit('ride_status_update', {

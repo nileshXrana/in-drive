@@ -11,8 +11,20 @@ export class RideService {
     private readonly rideRepository: Repository<Ride>,
   ) { }
 
-  async findAll(): Promise<Ride[]> {
-    return this.rideRepository.find();
+  async getRidesOfUser(userUuid: string): Promise<Ride[]> {
+    return this.rideRepository.find({
+      where: [
+        { rider: { uuid: userUuid } },
+        { driver: { uuid: userUuid } },
+      ],
+      relations: {
+        rider: true,
+        driver: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   async findOne(uuid: string): Promise<Ride | null> {

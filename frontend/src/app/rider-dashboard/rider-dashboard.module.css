@@ -8,7 +8,7 @@
 
 .header {
   height: 64px;
-  background-color: #413939b9;
+  background-color: #313436da;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0 2rem;
   display: flex;
@@ -25,7 +25,7 @@
 
 .leftPanel {
   width: 450px;
-  background-color: #1f1d1db7;
+  background-color: #1d1c1c;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem;
   overflow-y: auto;
@@ -72,23 +72,6 @@
   align-items: center;
 }
 
-.acceptBtn {
-  background-color: #22c55e;
-  color: white;
-}
-
-.acceptBtn:hover {
-  background-color: #16a34a;
-}
-
-.counterBtn {
-  background-color: #eab308;
-  color: white;
-}
-
-.counterBtn:hover {
-  background-color: #ca8a04;
-}
 
 .ignoreBtn {
   background-color: #ef4444;
@@ -114,4 +97,15 @@
 
 .inputField :global(.MuiOutlinedInput-notchedOutline) {
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+.rideList {
+  margin: 1.5rem;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+  height: 75%;
+  overflow-y: auto;
+  scrollbar-width: none;
 }

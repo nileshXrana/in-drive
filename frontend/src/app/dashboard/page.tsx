@@ -12,6 +12,7 @@ import BasicSelect from '@/components/role-select';
 import FreeSolo from '@/components/auto-search';
 import { io, Socket } from 'socket.io-client';
 import styles from './dashboard.module.css';
+import { getRides } from '@/services/ride.service'
 
 type Offer = {
   requestUuid: string;
@@ -40,6 +41,23 @@ type RidePayload = {
   status: string;
 };
 
+type RideHistoryItem = RidePayload & {
+  rider?: {
+    uuid: string;
+    email: string;
+  };
+  driver?: {
+    uuid: string;
+    email: string;
+  } | null;
+};
+
+type LocationOption = {
+  label: string;
+  placeName: string;
+  coordinates?: [number, number];
+};
+
 export default function PassengerDashboard() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -49,9 +67,10 @@ export default function PassengerDashboard() {
   const [rideStatus, setRideStatus] = useState<string | null>(null);
   const [activeRide, setActiveRide] = useState<RidePayload | null>(null);
   const socketRef = useRef<Socket | null>(null);
+  const [rides, setRides] = useState<RideHistoryItem[]>([]);
 
-  const [pickup, setPickup] = useState<any>(null);
-  const [destination, setDestination] = useState<any>(null);
+  const [pickup, setPickup] = useState<LocationOption | null>(null);
+  const [destination, setDestination] = useState<LocationOption | null>(null);
   const [fare, setFare] = useState('');
   const [notes, setNotes] = useState('');
   const [noteError, setNoteError] = useState('');
@@ -101,6 +120,24 @@ export default function PassengerDashboard() {
   }, [user?.uuid]);
 
 
+  useEffect(() => {
+    if (!user?.uuid) {
+      return;
+    }
+
+    const fetchRides = async () => {
+      try {
+        const data = await getRides();
+        setRides(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching rides:', error);
+      }
+    };
+
+    fetchRides();
+  }, [user?.uuid]);
+
+
 
   const handleLogout = async () => {
     await dispatch(logoutThunk());
@@ -109,7 +146,7 @@ export default function PassengerDashboard() {
 
   const handleFindDriver = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pickup || !destination || !fare) return;
+    if (!pickup?.coordinates || !destination?.coordinates || !pickup.label || !destination.label || !fare) return;
     if (notes.length > 50) {
       setNoteError('Notes must be 50 characters or less');
       return;
@@ -124,7 +161,11 @@ export default function PassengerDashboard() {
       {
         riderUuid: user.uuid,
         pickupLocation: pickup.label,
+        pickupLatitude: pickup.coordinates[0],
+        pickupLongitude: pickup.coordinates[1],
         dropoffLocation: destination.label,
+        dropoffLatitude: destination.coordinates[0],
+        dropoffLongitude: destination.coordinates[1],
         fare: parseFloat(fare),
         notes,
       },
@@ -242,7 +283,7 @@ export default function PassengerDashboard() {
                   variant="contained"
                   className={styles.bookButton}
                   fullWidth
-                  disabled={!pickup || !destination || !fare || !!noteError}
+                  disabled={!pickup?.coordinates || !destination?.coordinates || !fare || !!noteError}
                 >
                   Find Me Driver
                 </Button>
@@ -277,22 +318,33 @@ export default function PassengerDashboard() {
                       Fare: ₹{offer.price}
                     </Typography>
                     {offer.status === 'countered' && (
-                      <Typography variant="caption" sx={{ color: '#fbbf24', display: 'block', marginBottom: 1 }}>
+                      <Typography variant="caption" sx={{ color: 'black', display: 'block', marginBottom: 1 }}>
                         You countered back with ₹{offer.counteredPrice}
                       </Typography>
                     )}
                   </Box>
                   {offer.status !== 'countered' ? (
-                    <Box className={styles.offerActions}>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        className={styles.acceptBtn}
-                        onClick={() => handleAcceptOffer(offer)}
-                      >
-                        Accept
-                      </Button>
-                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flex: 1 }}>
+                    <Box>
+
+                      <Box className={styles.offerActions}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          className={styles.acceptBtn}
+                          onClick={() => handleAcceptOffer(offer)}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          className={styles.ignoreBtn}
+                          onClick={() => handleIgnoreOffer(offer)}
+                        >
+                          Ignore
+                        </Button>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flex: 1, mt: 2 }}>
                         <TextField
                           size="small"
                           placeholder="Price"
@@ -304,7 +356,6 @@ export default function PassengerDashboard() {
                               [offer.driver.uuid]: e.target.value,
                             }))
                           }
-                          className={styles.inputField}
                           sx={{ flex: 1 }}
                         />
                         <Button
@@ -317,25 +368,53 @@ export default function PassengerDashboard() {
                           Counter
                         </Button>
                       </Box>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        className={styles.ignoreBtn}
-                        onClick={() => handleIgnoreOffer(offer)}
-                      >
-                        Ignore
-                      </Button>
                     </Box>
                   ) : (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleIgnoreOffer(offer)}
-                      fullWidth
-                    >
-                      Cancel / Ignore
-                    </Button>
+                    <Box>
+
+                      <Box className={styles.offerActions}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          className={styles.acceptBtn}
+                          onClick={() => handleAcceptOffer(offer)}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          className={styles.ignoreBtn}
+                          onClick={() => handleIgnoreOffer(offer)}
+                        >
+                          Ignore
+                        </Button>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flex: 1, mt: 2 }}>
+                        <TextField
+                          size="small"
+                          placeholder="Price"
+                          type="number"
+                          value={counterInputs[offer.driver.uuid] || ''}
+                          onChange={(e) =>
+                            setCounterInputs((prev) => ({
+                              ...prev,
+                              [offer.driver.uuid]: e.target.value,
+                            }))
+                          }
+                          sx={{ flex: 1 }}
+                        />
+                        <Button
+                          size="small"
+                          variant="contained"
+                          className={styles.counterBtn}
+                          onClick={() => handleCounterBack(offer)}
+                          disabled={!counterInputs[offer.driver.uuid]}
+                        >
+                          Counter
+                        </Button>
+                      </Box>
+                    </Box>
                   )}
                 </Card>
               ))}
@@ -363,6 +442,33 @@ export default function PassengerDashboard() {
 
 
 
+
+
+        </Box>
+
+        {/* show all previous rides in a list */}
+        <Box className={styles.rightPanel}>
+
+          {rides.length > 0 ? (
+            <Box className={styles.statusCard} sx={{ width: '100%', color: 'black', marginTop: 2, border: '1px solid #4741413f', borderRadius: '8px', padding: '1rem', backgroundColor: '#3d333313', height: '85vh', overflowY: 'auto', scrollbarWidth: 'none' }}>
+              {rides.map((ride) => (
+                <Box key={ride.uuid} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, paddingY: 1, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(24, 22, 22, 0.8)' }}>
+                    {ride.pickupLocation} to {ride.dropoffLocation}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(24, 22, 22, 0.65)' }}>
+                    Status: {ride.status} · ₹{ride.fare}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box className={styles.statusCard} sx={{ width: '100%', color: 'black', marginTop: 2, border: '1px solid #4741413f', borderRadius: '8px', padding: '1rem', backgroundColor: '#3d333313', height: '85vh', overflowY: 'auto', scrollbarWidth: 'none' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(24, 22, 22, 0.8)' }}>
+                No previous rides found.
+              </Typography>
+            </Box>
+          )}
         </Box>
 
 
